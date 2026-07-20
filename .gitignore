@@ -1,0 +1,9 @@
+/target/
+**/*.rs.bk
+.DS_Store
+repository-hygiene.md
+repository-hygiene.json
+/out/
+
+/baoulo/
+.tool-versions
