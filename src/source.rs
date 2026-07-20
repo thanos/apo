@@ -99,10 +99,7 @@ pub fn looks_like_remote(target: &str) -> bool {
 
 fn normalize_remote(target: &str) -> String {
     let t = target.trim();
-    if t.starts_with("git@")
-        || t.contains("://")
-        || looks_like_scp(t)
-    {
+    if t.starts_with("git@") || t.contains("://") || looks_like_scp(t) {
         return t.to_string();
     }
     t.to_string()
@@ -127,9 +124,8 @@ fn clone_remote(uri: &str, depth: usize) -> Result<Workspace> {
             &depth.to_string(),
             "--quiet",
             uri,
-            dest.to_str().ok_or_else(|| {
-                Error::Config("clone destination path is not valid UTF-8".into())
-            })?,
+            dest.to_str()
+                .ok_or_else(|| Error::Config("clone destination path is not valid UTF-8".into()))?,
         ])
         .output()
         .map_err(|e| {
@@ -165,11 +161,7 @@ fn clone_remote(uri: &str, depth: usize) -> Result<Workspace> {
 
 fn repo_dirname(uri: &str) -> String {
     let trimmed = uri.trim_end_matches('/').trim_end_matches(".git");
-    let name = trimmed
-        .rsplit(['/', ':'])
-        .next()
-        .unwrap_or("repo")
-        .trim();
+    let name = trimmed.rsplit(['/', ':']).next().unwrap_or("repo").trim();
     if name.is_empty() {
         "repo".into()
     } else {
@@ -186,7 +178,9 @@ mod tests {
         assert!(looks_like_remote("https://github.com/thanos/ex_arrow"));
         assert!(looks_like_remote("http://example.com/r.git"));
         assert!(looks_like_remote("git@github.com:thanos/ex_arrow.git"));
-        assert!(looks_like_remote("ssh://git@github.com/thanos/ex_arrow.git"));
+        assert!(looks_like_remote(
+            "ssh://git@github.com/thanos/ex_arrow.git"
+        ));
         assert!(looks_like_remote("git://github.com/thanos/ex_arrow.git"));
         assert!(looks_like_remote("file:///tmp/foo.git"));
     }

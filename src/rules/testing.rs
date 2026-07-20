@@ -2,8 +2,8 @@
 
 use crate::discovery::RepoContext;
 use crate::evidence::{Category, Confidence, EvidenceItem, Finding, Status};
-use crate::rules::helpers;
 use crate::rules::Rule;
+use crate::rules::helpers;
 
 pub fn rules() -> Vec<Box<dyn Rule>> {
     vec![
@@ -118,7 +118,11 @@ impl Rule for CoverageConfig {
         );
         if let Some(pkg) = ctx.read_text("package.json") {
             let l = pkg.to_ascii_lowercase();
-            if l.contains("nyc") || l.contains("c8") || l.contains("istanbul") || l.contains("coverage") {
+            if l.contains("nyc")
+                || l.contains("c8")
+                || l.contains("istanbul")
+                || l.contains("coverage")
+            {
                 hits.push("package.json".into());
             }
         }
@@ -131,7 +135,15 @@ impl Rule for CoverageConfig {
         // CI mentions
         let ci = helpers::ci_mentions(
             ctx,
-            &["coverage", "codecov", "coveralls", "tarpaulin", "llvm-cov", "c8", "pytest-cov"],
+            &[
+                "coverage",
+                "codecov",
+                "coveralls",
+                "tarpaulin",
+                "llvm-cov",
+                "c8",
+                "pytest-cov",
+            ],
         );
         for item in &ci {
             if let Some(p) = &item.path {
@@ -186,7 +198,10 @@ impl Rule for CoverageEnforcement {
             if let Some(content) = ctx.read_text(name) {
                 let l = content.to_ascii_lowercase();
                 if l.contains("target") || l.contains("threshold") || l.contains("require") {
-                    items.push(EvidenceItem::path_detail(name, "threshold/target configured"));
+                    items.push(EvidenceItem::path_detail(
+                        name,
+                        "threshold/target configured",
+                    ));
                 } else {
                     items.push(EvidenceItem::path(name));
                 }
@@ -202,9 +217,9 @@ impl Rule for CoverageEnforcement {
                 .build()
         } else {
             let enforced = items.iter().any(|i| {
-                i.detail
-                    .as_deref()
-                    .is_some_and(|d| d.contains("threshold") || d.contains("fail-under") || d.contains("mentions"))
+                i.detail.as_deref().is_some_and(|d| {
+                    d.contains("threshold") || d.contains("fail-under") || d.contains("mentions")
+                })
             });
             Finding::builder(self.id(), Category::Testing)
                 .status(if enforced {

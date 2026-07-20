@@ -88,13 +88,25 @@ fn well_hygiened_repo_detects_controls() {
         "# Demo\n\n## Quickstart\n\n```bash\ncargo run\n```\n",
     );
     write(root, "CONTRIBUTING.md", "# Contributing\n");
-    write(root, "SECURITY.md", "# Security\nReport issues privately.\n");
+    write(
+        root,
+        "SECURITY.md",
+        "# Security\nReport issues privately.\n",
+    );
     write(root, "LICENSE", "MIT\n");
     write(root, "ARCHITECTURE.md", "# Architecture\n");
-    write(root, "docs/adr/0001-record-architecture-decisions.md", "# ADR 1\n");
+    write(
+        root,
+        "docs/adr/0001-record-architecture-decisions.md",
+        "# ADR 1\n",
+    );
     write(root, "docs/runbooks/restart.md", "# Restart\n");
     write(root, ".github/CODEOWNERS", "* @owners\n");
-    write(root, ".github/pull_request_template.md", "## Summary\nFixes #\n");
+    write(
+        root,
+        ".github/pull_request_template.md",
+        "## Summary\nFixes #\n",
+    );
     write(
         root,
         ".github/ISSUE_TEMPLATE/bug.md",
@@ -111,7 +123,11 @@ fn well_hygiened_repo_detects_controls() {
         "Cargo.toml",
         "[package]\nname = \"demo\"\nversion = \"0.1.0\"\nedition = \"2024\"\n",
     );
-    write(root, "src/lib.rs", "pub fn add(a: i32, b: i32) -> i32 { a + b }\n");
+    write(
+        root,
+        "src/lib.rs",
+        "pub fn add(a: i32, b: i32) -> i32 { a + b }\n",
+    );
     write(
         root,
         "tests/smoke.rs",
@@ -152,10 +168,18 @@ jobs:
         ".github/dependabot.yml",
         "version: 2\nupdates:\n  - package-ecosystem: cargo\n    directory: /\n    schedule:\n      interval: weekly\n",
     );
-    write(root, "deny.toml", "[advisories]\n",);
+    write(root, "deny.toml", "[advisories]\n");
     write(root, ".gitleaks.toml", "title = \"gitleaks\"\n");
-    write(root, "codecov.yml", "coverage:\n  status:\n    project:\n      default:\n        target: 80%\n");
-    write(root, ".commitlintrc.json", "{ \"extends\": [\"@commitlint/config-conventional\"] }\n");
+    write(
+        root,
+        "codecov.yml",
+        "coverage:\n  status:\n    project:\n      default:\n        target: 80%\n",
+    );
+    write(
+        root,
+        ".commitlintrc.json",
+        "{ \"extends\": [\"@commitlint/config-conventional\"] }\n",
+    );
 
     commit_all(root, "feat: initial well-hygiened repository");
 
@@ -173,8 +197,14 @@ jobs:
 
     assert_eq!(written.len(), 2);
     let prefix = report.artifact_prefix();
-    assert!(out.join(format!("{prefix}-repository-hygiene.md")).is_file());
-    assert!(out.join(format!("{prefix}-repository-hygiene.json")).is_file());
+    assert!(
+        out.join(format!("{prefix}-repository-hygiene.md"))
+            .is_file()
+    );
+    assert!(
+        out.join(format!("{prefix}-repository-hygiene.json"))
+            .is_file()
+    );
 
     let readme = report
         .findings

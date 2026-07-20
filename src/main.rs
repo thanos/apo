@@ -4,7 +4,7 @@ use std::process::ExitCode;
 
 use apo::cli::Cli;
 use apo::report::{json_to_string, render_llm_prompt};
-use apo::{analyze_and_write, OutputFormat};
+use apo::{OutputFormat, analyze_and_write};
 use clap::Parser;
 use tracing_subscriber::EnvFilter;
 

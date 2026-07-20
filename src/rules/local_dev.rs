@@ -2,8 +2,8 @@
 
 use crate::discovery::RepoContext;
 use crate::evidence::{Category, Confidence, EvidenceItem, Finding, Status};
-use crate::rules::helpers;
 use crate::rules::Rule;
+use crate::rules::helpers;
 
 pub fn rules() -> Vec<Box<dyn Rule>> {
     vec![
@@ -338,9 +338,7 @@ impl Rule for DevContainer {
         // Prefer stronger signals over CONTRIBUTING alone
         let strong: Vec<_> = hits
             .iter()
-            .filter(|h| {
-                !h.eq_ignore_ascii_case("CONTRIBUTING.md")
-            })
+            .filter(|h| !h.eq_ignore_ascii_case("CONTRIBUTING.md"))
             .cloned()
             .collect();
 
@@ -349,7 +347,9 @@ impl Rule for DevContainer {
                 .status(Status::Missing)
                 .confidence(Confidence::Medium)
                 .summary("No dev container or setup scripts detected.")
-                .remediation("Add .devcontainer, Dockerfile, or setup scripts for local onboarding.")
+                .remediation(
+                    "Add .devcontainer, Dockerfile, or setup scripts for local onboarding.",
+                )
                 .build()
         } else if strong.is_empty() {
             Finding::builder(self.id(), Category::LocalDevelopment)

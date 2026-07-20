@@ -57,7 +57,10 @@ pub fn render_llm_prompt(report: &Report) -> String {
 
     let _ = writeln!(out, "## Objectives");
     let _ = writeln!(out);
-    let _ = writeln!(out, "1. Close the **gap findings** listed below (Missing / Partial / Unknown).");
+    let _ = writeln!(
+        out,
+        "1. Close the **gap findings** listed below (Missing / Partial / Unknown)."
+    );
     let _ = writeln!(
         out,
         "2. Prefer the smallest change set that creates **observable evidence** APO can detect (files, CI steps, configs)."
@@ -82,7 +85,10 @@ pub fn render_llm_prompt(report: &Report) -> String {
 
     let _ = writeln!(out, "## Constraints");
     let _ = writeln!(out);
-    let _ = writeln!(out, "- Keep documentation accurate and short; avoid filler.");
+    let _ = writeln!(
+        out,
+        "- Keep documentation accurate and short; avoid filler."
+    );
     let _ = writeln!(out, "- Do not remove existing working controls.");
     let _ = writeln!(out, "- Do not commit secrets, tokens, or private keys.");
     let _ = writeln!(
@@ -125,16 +131,15 @@ pub fn render_llm_prompt(report: &Report) -> String {
     let _ = writeln!(out, "## Already satisfied (do not redo)");
     let _ = writeln!(out);
     if satisfied.is_empty() {
-        let _ = writeln!(out, "_None — treat the repository as greenfield for hygiene controls._");
+        let _ = writeln!(
+            out,
+            "_None — treat the repository as greenfield for hygiene controls._"
+        );
     } else {
         for f in &satisfied {
             let paths = evidence_paths(f);
             if paths.is_empty() {
-                let _ = writeln!(
-                    out,
-                    "- `{}` — {:?} — {}",
-                    f.rule, f.status, f.summary
-                );
+                let _ = writeln!(out, "- `{}` — {:?} — {}", f.rule, f.status, f.summary);
             } else {
                 let _ = writeln!(
                     out,
@@ -256,11 +261,7 @@ pub fn write_llm_prompt(report: &Report, path: &Path) -> Result<()> {
 }
 
 /// Resolve where to write the LLM prompt given `--output` and default directory.
-pub fn resolve_prompt_path(
-    report: &Report,
-    output: Option<&Path>,
-    default_dir: &Path,
-) -> PathBuf {
+pub fn resolve_prompt_path(report: &Report, output: Option<&Path>, default_dir: &Path) -> PathBuf {
     let default_name = report.prompt_filename();
     match output {
         None => default_dir.join(&default_name),

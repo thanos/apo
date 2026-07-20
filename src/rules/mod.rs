@@ -24,10 +24,7 @@ pub fn evaluate_all(ctx: &RepoContext) -> Vec<Finding> {
     use rayon::prelude::*;
 
     let rules = all_rules();
-    let mut findings: Vec<Finding> = rules
-        .par_iter()
-        .map(|rule| rule.evaluate(ctx))
-        .collect();
+    let mut findings: Vec<Finding> = rules.par_iter().map(|rule| rule.evaluate(ctx)).collect();
 
     findings.sort_by(|a, b| a.rule.cmp(&b.rule));
     findings

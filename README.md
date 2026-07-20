@@ -1,5 +1,11 @@
 # APO
 
+[![CI](https://github.com/thanos/apo/actions/workflows/ci.yml/badge.svg)](https://github.com/thanos/apo/actions/workflows/ci.yml)
+[![crates.io](https://img.shields.io/crates/v/apo.svg)](https://crates.io/crates/apo)
+[![docs.rs](https://docs.rs/apo/badge.svg)](https://docs.rs/apo)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![MSRV](https://img.shields.io/badge/MSRV-1.85-blue)](https://blog.rust-lang.org/2025/02/20/Rust-1.85.0/)
+
 **APO** (from Greek *apothiki* — "storehouse") is an **Engineering Evidence Platform**.
 
 This repository ships the first analyzer: **Repository Hygiene**.
@@ -10,9 +16,21 @@ Rules emit evidence only. A separate policy layer turns those observations into 
 
 ## Install
 
+### From crates.io
+
 ```bash
+cargo install apo
+```
+
+### From source
+
+```bash
+cargo install --git https://github.com/thanos/apo
+# or from a checkout:
 cargo install --path .
 ```
+
+Prebuilt binaries for Linux, macOS, and Windows are attached to [GitHub Releases](https://github.com/thanos/apo/releases) on each `v*` tag (with `SHA256SUMS`).
 
 ## Usage
 
@@ -229,9 +247,13 @@ For collaboration rules, APO samples up to `commit_sample_limit` commits from `H
 ```bash
 cargo test
 cargo clippy --all-targets -- -D warnings
+cargo fmt --all -- --check
+cargo deny check
 cargo run -- analyze . --format both
 ```
 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for PR and release workflow details. See [CHANGELOG.md](CHANGELOG.md) for release notes.
+
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).

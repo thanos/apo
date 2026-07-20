@@ -18,10 +18,7 @@ pub fn sanitize_repo_name(name: &str) -> String {
             }
         })
         .collect();
-    let cleaned = cleaned
-        .trim_matches('-')
-        .trim_matches('_')
-        .to_string();
+    let cleaned = cleaned.trim_matches('-').trim_matches('_').to_string();
     if cleaned.is_empty() {
         "repository".into()
     } else {
@@ -96,10 +93,7 @@ mod tests {
 
     #[test]
     fn names_from_path_and_uri() {
-        assert_eq!(
-            repo_name_from_label("/Users/thanos/work/apo", None),
-            "apo"
-        );
+        assert_eq!(repo_name_from_label("/Users/thanos/work/apo", None), "apo");
         assert_eq!(
             repo_name_from_label("https://github.com/thanos/ex_arrow", None),
             "ex_arrow"

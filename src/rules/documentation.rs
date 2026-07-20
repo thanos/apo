@@ -2,8 +2,8 @@
 
 use crate::discovery::RepoContext;
 use crate::evidence::{Category, Confidence, EvidenceItem, Finding, Status};
-use crate::rules::helpers;
 use crate::rules::Rule;
+use crate::rules::helpers;
 
 pub fn rules() -> Vec<Box<dyn Rule>> {
     vec![
@@ -30,8 +30,20 @@ impl Rule for Readme {
             ctx,
             self.id(),
             Category::Documentation,
-            &["README.md", "README.rst", "README.txt", "README", "Readme.md"],
-            &["quickstart", "getting started", "install", "usage", "how to"],
+            &[
+                "README.md",
+                "README.rst",
+                "README.txt",
+                "README",
+                "Readme.md",
+            ],
+            &[
+                "quickstart",
+                "getting started",
+                "install",
+                "usage",
+                "how to",
+            ],
             "README with quickstart/usage guidance detected.",
             "README present.",
             "No README file detected.",
@@ -168,7 +180,14 @@ impl Rule for Adrs {
         "documentation.adrs"
     }
     fn evaluate(&self, ctx: &RepoContext) -> Finding {
-        let dirs = ["docs/adr", "docs/adrs", "adr", "adrs", "doc/adr", "architecture/decisions"];
+        let dirs = [
+            "docs/adr",
+            "docs/adrs",
+            "adr",
+            "adrs",
+            "doc/adr",
+            "architecture/decisions",
+        ];
         let mut hits = Vec::new();
         for d in dirs {
             if ctx.has_dir(d) {

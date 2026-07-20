@@ -2,8 +2,8 @@
 
 use crate::discovery::RepoContext;
 use crate::evidence::{Category, Confidence, EvidenceItem, Finding, Status};
-use crate::rules::helpers;
 use crate::rules::Rule;
+use crate::rules::helpers;
 
 pub fn rules() -> Vec<Box<dyn Rule>> {
     vec![
@@ -70,7 +70,9 @@ impl Rule for CommitConvention {
                     .confidence(Confidence::Medium)
                     .summary("Partial Conventional Commits adoption observed.")
                     .evidence(items)
-                    .remediation("Adopt Conventional Commits and optionally enforce via commitlint.")
+                    .remediation(
+                        "Adopt Conventional Commits and optionally enforce via commitlint.",
+                    )
                     .build();
             }
         }
@@ -281,10 +283,7 @@ impl Rule for MaintenanceActivity {
                 "Maintenance activity within the last 90 days.",
             )
         } else if days <= 180 {
-            (
-                Status::Partial,
-                "Last commit is older than 90 days.",
-            )
+            (Status::Partial, "Last commit is older than 90 days.")
         } else {
             (
                 Status::Missing,

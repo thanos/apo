@@ -1,0 +1,1 @@
+# Prefer idiomatic Clippy defaults; CI runs with `-D warnings`.

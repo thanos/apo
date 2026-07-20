@@ -2,8 +2,8 @@
 
 use crate::discovery::RepoContext;
 use crate::evidence::{Category, Confidence, EvidenceItem, Finding, Status};
-use crate::rules::helpers;
 use crate::rules::Rule;
+use crate::rules::helpers;
 
 pub fn rules() -> Vec<Box<dyn Rule>> {
     vec![
@@ -76,7 +76,8 @@ impl Rule for ReleaseWorkflows {
         for path in &signals.ci_workflow_paths {
             let name = path.to_ascii_lowercase();
             let content = ctx.read_text(path).unwrap_or_default().to_ascii_lowercase();
-            let name_hit = name.contains("release") || name.contains("publish") || name.contains("deploy");
+            let name_hit =
+                name.contains("release") || name.contains("publish") || name.contains("deploy");
             let body_hit = content.contains("release")
                 || content.contains("softprops/action-gh-release")
                 || content.contains("cargo publish")
@@ -95,7 +96,12 @@ impl Rule for ReleaseWorkflows {
             }
         }
 
-        for name in ["goreleaser.yml", ".goreleaser.yml", ".goreleaser.yaml", "release-please-config.json"] {
+        for name in [
+            "goreleaser.yml",
+            ".goreleaser.yml",
+            ".goreleaser.yaml",
+            "release-please-config.json",
+        ] {
             if ctx.has_file(name) {
                 items.push(EvidenceItem::path(name));
             }
@@ -146,7 +152,8 @@ impl Rule for BranchProtection {
                 .map(|e| EvidenceItem::path(e.relative.clone())),
         );
 
-        let rulesets = helpers::ci_mentions(ctx, &["branch protection", "ruleset", "required reviewers"]);
+        let rulesets =
+            helpers::ci_mentions(ctx, &["branch protection", "ruleset", "required reviewers"]);
         items.extend(rulesets);
 
         if items.is_empty() {
@@ -189,7 +196,9 @@ impl Rule for RequiredStatusChecks {
                 .status(Status::Missing)
                 .confidence(Confidence::Medium)
                 .summary("No CI workflows found from which status checks could be required.")
-                .remediation("Add CI workflows, then require them as status checks on the default branch.")
+                .remediation(
+                    "Add CI workflows, then require them as status checks on the default branch.",
+                )
                 .build();
         }
 
@@ -197,7 +206,12 @@ impl Rule for RequiredStatusChecks {
         let mut items: Vec<_> = signals
             .ci_workflow_paths
             .iter()
-            .map(|p| EvidenceItem::path_detail(p, "CI workflow present (required-check enforcement not verified locally)"))
+            .map(|p| {
+                EvidenceItem::path_detail(
+                    p,
+                    "CI workflow present (required-check enforcement not verified locally)",
+                )
+            })
             .collect();
 
         if let Some(content) = ctx.read_text(".github/settings.yml") {

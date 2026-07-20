@@ -141,8 +141,7 @@ pub fn resolve_outputs(
         }
         (OutputFormat::Both, Some(p)) => {
             if p.is_file()
-                || p
-                    .extension()
+                || p.extension()
                     .is_some_and(|e| e == "md" || e == "json" || e == "markdown")
             {
                 // Treat as directory parent or stem base
@@ -151,9 +150,7 @@ pub fn resolve_outputs(
                     .file_stem()
                     .and_then(|s| s.to_str())
                     .map(str::to_string)
-                    .unwrap_or_else(|| {
-                        format!("{}-repository-hygiene", report.artifact_prefix())
-                    });
+                    .unwrap_or_else(|| format!("{}-repository-hygiene", report.artifact_prefix()));
                 Ok(vec![
                     (OutputFormat::Markdown, parent.join(format!("{stem}.md"))),
                     (OutputFormat::Json, parent.join(format!("{stem}.json"))),

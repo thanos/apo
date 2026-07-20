@@ -2,19 +2,30 @@
 name = "apo"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85"
 description = "APO — Engineering Evidence Platform. Repository Hygiene analyzer."
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/example/apo"
-keywords = ["engineering", "hygiene", "repository", "evidence"]
+homepage = "https://github.com/thanos/apo"
+repository = "https://github.com/thanos/apo"
+documentation = "https://docs.rs/apo"
+keywords = ["engineering", "hygiene", "repository", "evidence", "cli"]
 categories = ["command-line-utilities", "development-tools"]
+exclude = [
+    "/baoulo/",
+    "/.tool-versions",
+    "/*-repository-hygiene.md",
+    "/*-repository-hygiene.json",
+    "/*-repository-hygiene-prompt.md",
+]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-gix = { version = "0.70", default-features = false, features = [
+gix = { version = "0.85", default-features = false, features = [
     "revision",
+    "sha1",
 ] }
 ignore = "0.4"
 regex = "1"
@@ -40,3 +51,7 @@ path = "src/main.rs"
 [lib]
 name = "apo"
 path = "src/lib.rs"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

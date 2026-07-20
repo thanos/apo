@@ -103,8 +103,7 @@ pub fn analyze_and_write(config: &Config) -> Result<(Report, Vec<std::path::Path
     }
 
     if config.llm_prompt {
-        let prompt_path =
-            report::resolve_prompt_path(&report, config.output.as_deref(), write_dir);
+        let prompt_path = report::resolve_prompt_path(&report, config.output.as_deref(), write_dir);
         report::write_llm_prompt(&report, &prompt_path)?;
         written.push(prompt_path);
     }

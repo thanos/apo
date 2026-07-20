@@ -11,9 +11,12 @@ use crate::git;
 
 /// Discover a repository at `root` and build analysis context.
 pub fn discover(root: &Path, commit_sample_limit: usize) -> Result<RepoContext> {
-    let root = root
-        .canonicalize()
-        .map_err(|e| Error::Io(std::io::Error::new(e.kind(), format!("{}: {e}", root.display()))))?;
+    let root = root.canonicalize().map_err(|e| {
+        Error::Io(std::io::Error::new(
+            e.kind(),
+            format!("{}: {e}", root.display()),
+        ))
+    })?;
 
     if !root.is_dir() {
         return Err(Error::NotADirectory(root));

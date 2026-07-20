@@ -2,8 +2,8 @@
 
 use crate::discovery::RepoContext;
 use crate::evidence::{Category, Confidence, EvidenceItem, Finding, Status};
-use crate::rules::helpers;
 use crate::rules::Rule;
+use crate::rules::helpers;
 
 pub fn rules() -> Vec<Box<dyn Rule>> {
     vec![
@@ -20,15 +20,8 @@ impl Rule for DependencyScanning {
         "security.dependency_scanning"
     }
     fn evaluate(&self, ctx: &RepoContext) -> Finding {
-        let mut hits = helpers::find_configs(
-            ctx,
-            &[
-                "deny.toml",
-                ".snyk",
-                "nancy.toml",
-                "audit.toml",
-            ],
-        );
+        let mut hits =
+            helpers::find_configs(ctx, &["deny.toml", ".snyk", "nancy.toml", "audit.toml"]);
         let mut items = helpers::ci_mentions(
             ctx,
             &[

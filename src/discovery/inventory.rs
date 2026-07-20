@@ -118,13 +118,11 @@ impl Inventory {
     /// Case-insensitive file lookup by relative path.
     pub fn get(&self, relative: &str) -> Option<&FileEntry> {
         let key = relative.replace('\\', "/");
-        self.files
-            .get(&key)
-            .or_else(|| {
-                self.lower_index
-                    .get(&key.to_ascii_lowercase())
-                    .and_then(|canon| self.files.get(canon))
-            })
+        self.files.get(&key).or_else(|| {
+            self.lower_index
+                .get(&key.to_ascii_lowercase())
+                .and_then(|canon| self.files.get(canon))
+        })
     }
 
     /// Whether a file exists (case-insensitive).
@@ -135,8 +133,7 @@ impl Inventory {
     /// Whether a directory prefix exists.
     pub fn has_dir(&self, relative: &str) -> bool {
         let key = relative.trim_matches('/').replace('\\', "/");
-        self.dirs.contains(&key)
-            || self.files.keys().any(|f| f.starts_with(&format!("{key}/")))
+        self.dirs.contains(&key) || self.files.keys().any(|f| f.starts_with(&format!("{key}/")))
     }
 
     /// Find files whose relative path matches a predicate.
@@ -144,10 +141,7 @@ impl Inventory {
     where
         F: FnMut(&str) -> bool,
     {
-        self.files
-            .values()
-            .filter(|e| pred(&e.relative))
-            .collect()
+        self.files.values().filter(|e| pred(&e.relative)).collect()
     }
 
     /// Find files matching any of the given basename patterns (case-insensitive).
@@ -291,8 +285,7 @@ impl ToolSignals {
         let ci = inv
             .find_matching(|p| {
                 let l = p.to_ascii_lowercase();
-                l.starts_with(".github/workflows/")
-                    && (l.ends_with(".yml") || l.ends_with(".yaml"))
+                l.starts_with(".github/workflows/") && (l.ends_with(".yml") || l.ends_with(".yaml"))
             })
             .into_iter()
             .map(|e| e.relative.clone())
