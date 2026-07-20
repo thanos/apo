@@ -3,6 +3,10 @@
 .DS_Store
 repository-hygiene.md
 repository-hygiene.json
+repository-hygiene-prompt.md
+*-repository-hygiene.md
+*-repository-hygiene.json
+*-repository-hygiene-prompt.md
 /out/
 
 /baoulo/

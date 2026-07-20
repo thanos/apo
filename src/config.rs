@@ -40,6 +40,12 @@ pub struct Config {
     pub output: Option<std::path::PathBuf>,
     /// Maximum commits to inspect for maintenance signals (also clone depth for remotes).
     pub commit_sample_limit: usize,
+    /// Write an LLM remediation prompt from gap findings.
+    pub llm_prompt: bool,
+    /// Skip hygiene report files; only emit the LLM prompt.
+    pub prompt_only: bool,
+    /// Print the LLM prompt to stdout.
+    pub prompt_stdout: bool,
 }
 
 impl Default for Config {
@@ -49,6 +55,9 @@ impl Default for Config {
             format: OutputFormat::Markdown,
             output: None,
             commit_sample_limit: 100,
+            llm_prompt: false,
+            prompt_only: false,
+            prompt_stdout: false,
         }
     }
 }

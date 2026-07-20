@@ -58,7 +58,9 @@ pub fn analyze_with_workspace(config: &Config) -> Result<(Report, Workspace)> {
     Ok((report, workspace))
 }
 
-/// Analyze and write reports to disk. Returns the report and written paths.
+/// Analyze and write reports (and optional LLM prompt) to disk.
+///
+/// Returns the report and written paths.
 pub fn analyze_and_write(config: &Config) -> Result<(Report, Vec<std::path::PathBuf>)> {
     let (report, workspace) = analyze_with_workspace(config)?;
 
@@ -89,7 +91,24 @@ pub fn analyze_and_write(config: &Config) -> Result<(Report, Vec<std::path::Path
         default_dir
     };
 
-    let written = report::write_report(&report, config.format, config.output.as_deref(), write_dir)?;
+    let mut written = Vec::new();
+
+    if !config.prompt_only {
+        written.extend(report::write_report(
+            &report,
+            config.format,
+            config.output.as_deref(),
+            write_dir,
+        )?);
+    }
+
+    if config.llm_prompt {
+        let prompt_path =
+            report::resolve_prompt_path(&report, config.output.as_deref(), write_dir);
+        report::write_llm_prompt(&report, &prompt_path)?;
+        written.push(prompt_path);
+    }
+
     // Keep workspace alive until writes finish (remote temp clone).
     drop(workspace);
     Ok((report, written))

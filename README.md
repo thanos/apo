@@ -26,6 +26,11 @@ apo analyze . --format both --output ./out
 # Remote Git URI (shallow-cloned to a temp dir, then cleaned up)
 apo analyze https://github.com/thanos/ex_arrow
 apo analyze git@github.com:thanos/ex_arrow.git --format both
+
+# LLM remediation prompt (paste into Cursor/ChatGPT/etc. to close gaps)
+apo analyze . --llm-prompt
+apo prompt .
+apo prompt https://github.com/thanos/ex_arrow --output ./out
 ```
 
 Default artifacts:
@@ -35,8 +40,28 @@ Default artifacts:
 
 Files:
 
-- `repository-hygiene.md`
-- `repository-hygiene.json` (when `--format json` or `both`)
+- `{repo}-repository-hygiene.md`
+- `{repo}-repository-hygiene.json` (when `--format json` or `both`)
+- `{repo}-repository-hygiene-prompt.md` (when `--llm-prompt` or `apo prompt`)
+
+`{repo}` is the repository directory name (local) or the remote repo basename (e.g. `ex_arrow` from `https://github.com/thanos/ex_arrow`).
+
+### LLM remediation prompt
+
+`apo prompt` / `--llm-prompt` generates a paste-ready instructions file for an LLM coding agent. It includes:
+
+- Repository identity and current weighted score
+- Rubric priorities
+- Controls already satisfied (do not redo)
+- Enumerated gaps (`Missing` / `Partial` / `Unknown`) with remediations and evidence
+- Constraints and a required changelog deliverable mapping files → APO rule ids
+
+Example:
+
+```bash
+apo prompt . > /tmp/fix-hygiene.md   # also writes {repo}-repository-hygiene-prompt.md
+# then paste into your LLM agent against the repo checkout
+```
 
 ## Pipeline
 

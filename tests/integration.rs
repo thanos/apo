@@ -54,6 +54,7 @@ fn minimal_repo_reports_missing_controls() {
         format: OutputFormat::Json,
         output: None,
         commit_sample_limit: 50,
+        ..Config::default()
     })
     .unwrap();
 
@@ -166,12 +167,14 @@ jobs:
         format: OutputFormat::Both,
         output: Some(out.clone()),
         commit_sample_limit: 50,
+        ..Config::default()
     })
     .unwrap();
 
     assert_eq!(written.len(), 2);
-    assert!(out.join("repository-hygiene.md").is_file());
-    assert!(out.join("repository-hygiene.json").is_file());
+    let prefix = report.artifact_prefix();
+    assert!(out.join(format!("{prefix}-repository-hygiene.md")).is_file());
+    assert!(out.join(format!("{prefix}-repository-hygiene.json")).is_file());
 
     let readme = report
         .findings
@@ -238,6 +241,7 @@ fn analyzes_remote_file_uri() {
         format: OutputFormat::Json,
         output: Some(out.path().join("remote.json")),
         commit_sample_limit: 20,
+        ..Config::default()
     })
     .unwrap();
 

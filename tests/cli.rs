@@ -62,3 +62,37 @@ fn analyze_json_writes_and_prints() {
     let written = fs::read_to_string(dir.path().join("report.json")).unwrap();
     assert!(written.contains("\"analyzer\": \"repository-hygiene\""));
 }
+
+#[test]
+fn prompt_command_writes_llm_remediation_file() {
+    let dir = tempdir().unwrap();
+    init_tiny_repo(dir.path());
+    let out = dir.path().join("prompt-out");
+    fs::create_dir_all(&out).unwrap();
+
+    cargo_bin_cmd!("apo")
+        .args([
+            "prompt",
+            dir.path().to_str().unwrap(),
+            "--output",
+            out.to_str().unwrap(),
+            "--quiet",
+        ])
+        .assert()
+        .success()
+        .stdout(predicate::str::is_empty());
+
+    let entries: Vec<_> = fs::read_dir(&out)
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .collect();
+    let prompt_name = entries
+        .iter()
+        .find(|n| n.ends_with("-repository-hygiene-prompt.md"))
+        .expect("expected prefixed prompt file");
+    let prompt = fs::read_to_string(out.join(prompt_name)).unwrap();
+    assert!(prompt.contains("Repository hygiene remediation task"));
+    assert!(prompt.contains("Gaps to remediate"));
+    assert!(prompt.contains("documentation.license") || prompt.contains("local_development"));
+}

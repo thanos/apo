@@ -23,7 +23,9 @@ pub fn render_markdown(report: &Report) -> String {
     if let Some(uri) = &report.source_uri {
         let _ = writeln!(out, "- **Source URI:** `{uri}`");
     }
-    if let Some(path) = &report.checkout_path {
+    if let Some(path) = &report.checkout_path
+        && report.source_uri.is_some()
+    {
         let _ = writeln!(out, "- **Checkout path:** `{path}`");
     }
     let _ = writeln!(out, "- **Generated:** {}", report.generated_at);

@@ -1,10 +1,14 @@
-//! Report generation (JSON + Markdown).
+//! Report generation (JSON + Markdown + LLM remediation prompt).
 
 mod json;
 mod markdown;
+mod names;
+mod prompt;
 
 pub use json::{to_string as json_to_string, write_json};
 pub use markdown::write_markdown;
+pub use names::{repo_name_from_label, sanitize_repo_name};
+pub use prompt::{render_llm_prompt, resolve_prompt_path, write_llm_prompt};
 
 use serde::{Deserialize, Serialize};
 
@@ -80,11 +84,7 @@ impl Report {
         let missing_controls = policy.gaps.clone();
         let recommendations = policy.recommendations.clone();
 
-        let checkout_path = if workspace.is_remote() {
-            Some(ctx.root.display().to_string())
-        } else {
-            None
-        };
+        let checkout_path = Some(ctx.root.display().to_string());
 
         Self {
             apo_version: env!("CARGO_PKG_VERSION").to_string(),
@@ -103,13 +103,17 @@ impl Report {
 }
 
 /// Resolve output paths for the requested format.
+///
+/// Default filenames are `{repo}-repository-hygiene.{md,json}`. Explicit file
+/// paths from `--output` are respected as given.
 pub fn resolve_outputs(
+    report: &Report,
     format: OutputFormat,
     output: Option<&Path>,
     cwd: &Path,
 ) -> Result<Vec<(OutputFormat, PathBuf)>> {
-    let default_md = cwd.join("repository-hygiene.md");
-    let default_json = cwd.join("repository-hygiene.json");
+    let default_md = cwd.join(report.markdown_filename());
+    let default_json = cwd.join(report.json_filename());
 
     match (format, output) {
         (OutputFormat::Markdown, None) => Ok(vec![(OutputFormat::Markdown, default_md)]),
@@ -120,14 +124,17 @@ pub fn resolve_outputs(
         ]),
         (OutputFormat::Markdown, Some(p)) => {
             if p.is_dir() || p.extension().is_none() {
-                Ok(vec![(OutputFormat::Markdown, p.join("repository-hygiene.md"))])
+                Ok(vec![(
+                    OutputFormat::Markdown,
+                    p.join(report.markdown_filename()),
+                )])
             } else {
                 Ok(vec![(OutputFormat::Markdown, p.to_path_buf())])
             }
         }
         (OutputFormat::Json, Some(p)) => {
             if p.is_dir() || (p.extension().is_none() && !p.to_string_lossy().ends_with(".json")) {
-                Ok(vec![(OutputFormat::Json, p.join("repository-hygiene.json"))])
+                Ok(vec![(OutputFormat::Json, p.join(report.json_filename()))])
             } else {
                 Ok(vec![(OutputFormat::Json, p.to_path_buf())])
             }
@@ -143,15 +150,18 @@ pub fn resolve_outputs(
                 let stem = p
                     .file_stem()
                     .and_then(|s| s.to_str())
-                    .unwrap_or("repository-hygiene");
+                    .map(str::to_string)
+                    .unwrap_or_else(|| {
+                        format!("{}-repository-hygiene", report.artifact_prefix())
+                    });
                 Ok(vec![
                     (OutputFormat::Markdown, parent.join(format!("{stem}.md"))),
                     (OutputFormat::Json, parent.join(format!("{stem}.json"))),
                 ])
             } else {
                 Ok(vec![
-                    (OutputFormat::Markdown, p.join("repository-hygiene.md")),
-                    (OutputFormat::Json, p.join("repository-hygiene.json")),
+                    (OutputFormat::Markdown, p.join(report.markdown_filename())),
+                    (OutputFormat::Json, p.join(report.json_filename())),
                 ])
             }
         }
@@ -165,7 +175,7 @@ pub fn write_report(
     output: Option<&Path>,
     default_dir: &Path,
 ) -> Result<Vec<PathBuf>> {
-    let targets = resolve_outputs(format, output, default_dir)?;
+    let targets = resolve_outputs(report, format, output, default_dir)?;
     let mut written = Vec::new();
     for (fmt, path) in targets {
         if let Some(parent) = path.parent() {

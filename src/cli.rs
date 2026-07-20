@@ -36,6 +36,26 @@ pub enum Commands {
         /// Write report to this path (file) or directory.
         #[arg(long)]
         output: Option<PathBuf>,
+
+        /// Also write an LLM remediation prompt (`{repo}-repository-hygiene-prompt.md`)
+        /// that instructs a model to add missing artifacts and close gaps.
+        #[arg(long)]
+        llm_prompt: bool,
+    },
+
+    /// Analyze and emit only an LLM remediation prompt (stdout + file).
+    Prompt {
+        /// Local repository path or remote Git URI.
+        #[arg(default_value = ".")]
+        target: String,
+
+        /// Write prompt to this path (file) or directory.
+        #[arg(long)]
+        output: Option<PathBuf>,
+
+        /// Write the file only; do not print the prompt to stdout.
+        #[arg(long)]
+        quiet: bool,
     },
 }
 
@@ -47,10 +67,27 @@ impl Cli {
                 target,
                 format,
                 output,
+                llm_prompt,
             } => Ok(Config {
                 target,
                 format: OutputFormat::parse(&format)?,
                 output,
+                llm_prompt,
+                prompt_only: false,
+                prompt_stdout: false,
+                ..Config::default()
+            }),
+            Commands::Prompt {
+                target,
+                output,
+                quiet,
+            } => Ok(Config {
+                target,
+                format: OutputFormat::Markdown,
+                output,
+                llm_prompt: true,
+                prompt_only: true,
+                prompt_stdout: !quiet,
                 ..Config::default()
             }),
         }

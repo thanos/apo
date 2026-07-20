@@ -3,7 +3,7 @@
 use std::process::ExitCode;
 
 use apo::cli::Cli;
-use apo::report::json_to_string;
+use apo::report::{json_to_string, render_llm_prompt};
 use apo::{analyze_and_write, OutputFormat};
 use clap::Parser;
 use tracing_subscriber::EnvFilter;
@@ -13,6 +13,7 @@ fn main() -> ExitCode {
         .with_env_filter(
             EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")),
         )
+        .with_writer(std::io::stderr)
         .with_target(false)
         .init();
 
@@ -27,23 +28,28 @@ fn main() -> ExitCode {
 
     match analyze_and_write(&config) {
         Ok((report, written)) => {
-            match config.format {
-                OutputFormat::Json => {
-                    if let Ok(s) = json_to_string(&report) {
-                        println!("{s}");
+            if config.prompt_stdout {
+                print!("{}", render_llm_prompt(&report));
+            } else if !config.prompt_only {
+                match config.format {
+                    OutputFormat::Json => {
+                        if let Ok(s) = json_to_string(&report) {
+                            println!("{s}");
+                        }
                     }
-                }
-                OutputFormat::Markdown | OutputFormat::Both => {
-                    if let Some(score) = report.policy.overall_score {
-                        eprintln!(
-                            "apo: repository hygiene score {:.1}/100 ({} findings)",
-                            score,
-                            report.findings.len()
-                        );
+                    OutputFormat::Markdown | OutputFormat::Both => {
+                        if let Some(score) = report.policy.overall_score {
+                            eprintln!(
+                                "apo: repository hygiene score {:.1}/100 ({} findings, {} gaps)",
+                                score,
+                                report.findings.len(),
+                                report.missing_controls.len()
+                            );
+                        }
                     }
                 }
             }
-            for path in written {
+            for path in &written {
                 eprintln!("wrote {}", path.display());
             }
             ExitCode::SUCCESS
